@@ -1,41 +1,20 @@
-// builderRoutes.js
 import express from 'express';
-import { getBuilders, getBuilder, addBuilder } from '../controllers/builderController.js';
+import { getBuilders, addBuilder, getBuildersNames, verifyBuilderByName } from '../controllers/builderController.js';
 
 const router = express.Router();
 
+// Route to fetch all builders
 router.get('/', getBuilders);
-router.get('/:id', getBuilder);
+
+
+
+// Route to add a new builder
 router.post('/', addBuilder);
 
+// Route to fetch builder names and IDs
+router.get('/names', getBuildersNames);
+
+// Route to verify a builder by their complete name
+router.post('/verify', verifyBuilderByName);
+
 export default router;
-
-// import express from "express";
-// import * as builderController from "../controllers/builderController.js";
-
-// const router = express.Router();
-
-// // Builder routes
-// router.post("/", builderController.createBuilder); // Create a new builder
-// router.get("/:id", builderController.getBuilder); // Get a specific builder by ID
-// router.put("/:id", builderController.updateBuilder); // Update a builder by ID
-// router.delete("/:id", builderController.deleteBuilder); // Delete a builder by ID
-// router.get("/", builderController.getAllBuilders); // Get all builders
-
-// // Projects by builder routes
-// // router.post("/:id/projects", builderController.createProjectForBuilder); // Add a project to a builder
-
-// // // Media routes for builder
-// // router.post("/:id/media", builderController.createBuilderMedia); // Add media to a builder
-
-// // // Additional info routes for builder
-// // router.post("/:id/additional-info", builderController.addAdditionalInfo); // Add additional information for a builder
-
-// // Catch-all Error Handling
-// router.use((err, req, res, next) => {
-//   console.error(err.stack); // Logs error stack
-//   res
-//     .status(500)
-//     .json({ error: "Internal server error. Please try again later." });
-// });
-// export default router;

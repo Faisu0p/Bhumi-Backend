@@ -8,17 +8,8 @@ export async function getAllBuilders() {
   return await query(sqlQuery);
 }
 
-// Get builder by ID
-export const getBuilderById = async (id) => {
-  try {
-    const sqlQuery = 'SELECT * FROM Builders WHERE id = @id';
-    const builders = await query(sqlQuery, [id]);
-    return builders[0]; // Return the first builder or null if not found
-  } catch (err) {
-    console.error('Error fetching builder:', err);
-    throw err;
-  }
-};
+
+
 
 export const createBuilder = async (builderData) => {
   const {
@@ -74,47 +65,47 @@ export const createBuilder = async (builderData) => {
 };
 
 
-// Update an existing builder
-export const updateBuilder = async (id, builderData) => {
-  const { cityName, builderFullName, shortName, logoUrl, numberOfProjects, briefDescription, listOfProjects } = builderData;
+// Fetch builder names and IDs from Builders table
+export const getBuildersName = async () => {
   try {
-    const sqlQuery = `
-      UPDATE Builders
-      SET 
-        cityName = @cityName,
-        builderFullName = @builderFullName,
-        shortName = @shortName,
-        logoUrl = @logoUrl,
-        numberOfProjects = @numberOfProjects,
-        briefDescription = @briefDescription,
-        listOfProjects = @listOfProjects 
-      WHERE id = @id
-    `;
-    const result = await query(sqlQuery, [
-      cityName, 
-      builderFullName, 
-      shortName, 
-      logoUrl, 
-      numberOfProjects, 
-      briefDescription, 
-      JSON.stringify(listOfProjects), // Store listOfProjects as a string
-      id
-    ]);
-    return result;
+    const pool = await sql.connect(config);
+
+    // Log to check if connection is successful
+    console.log("Connected to the database");
+
+    const result = await pool.request().query(`
+      SELECT id, builderCompleteName FROM Builders;
+    `);
+
+    // Log the result to see the output
+    console.log("Query result:", result.recordset);
+
+    return result.recordset; // This returns the builders as an array of objects
   } catch (err) {
-    console.error('Error updating builder:', err);
-    throw err;
+    // Log detailed error for debugging
+    console.error("Error fetching builders:", err);
+    throw new Error("Error fetching builders");
   }
 };
 
-// Delete a builder
-export const deleteBuilder = async (id) => {
+
+
+// Verify a builder by their complete name
+export const verifyBuilder = async (builderCompleteName) => {
   try {
-    const sqlQuery = 'DELETE FROM Builders WHERE id = @id';
-    const result = await query(sqlQuery, [id]);
-    return result;
+    const pool = await sql.connect(config);
+
+    const result = await pool.request()
+      .input('builderCompleteName', sql.VarChar, builderCompleteName)
+      .query(`
+        UPDATE Builders
+        SET isVerified = 1
+        WHERE builderCompleteName = @builderCompleteName;
+      `);
+
+    return result.rowsAffected[0] > 0; // Return true if at least one row was updated
   } catch (err) {
-    console.error('Error deleting builder:', err);
-    throw err;
+    console.error("Error verifying builder:", err);
+    throw new Error("Error updating builder verification status");
   }
 };
