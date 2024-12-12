@@ -1,0 +1,315 @@
+:root {
+  --primary-color: red;
+  --completed-color: #4caf50;
+  --disabled-color: #e0e0e0;
+  --text-color: #333;
+  --line-color: #eaeaea;
+}
+
+.stepper-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rem;
+  padding: 4rem 2rem;
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  flex: 1;
+}
+
+.step-circle {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  background-color: white;
+  border: 0.2rem solid var(--disabled-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--text-color);
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.step-title {
+  margin-top: 1rem;
+  font-size: 1.4rem;
+  color: var(--text-color);
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.step-line {
+  flex: 1;
+  height: 0.2rem;
+  background-color: var(--line-color);
+  position: relative;
+  top: -2.5rem;
+  max-width: 10rem;
+}
+
+/* Active state */
+.step-item.active .step-circle {
+  border-color: var(--primary-color);
+  background-color: var(--primary-color);
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 0.2rem 1rem rgba(0, 149, 255, 0.2);
+}
+
+.step-item.active .step-title {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* Completed state */
+.step-item.completed .step-circle {
+  border-color: var(--completed-color);
+  background-color: var(--completed-color);
+  color: white;
+}
+
+.step-item.completed + .step-line {
+  background-color: var(--completed-color);
+}
+
+.checkmark {
+  width: 2.5rem;
+  height: 2.5rem;
+  fill: white;
+}
+
+/* Step content */
+.step-content {
+  background-color: #f9f9f9;
+  border-radius: 1rem;
+  padding: 3rem;
+  width: 100%;
+  box-shadow: 0 0.4rem 1rem rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+h2,
+p {
+  margin-bottom: 1.5rem;
+}
+
+/* Option buttons (Sell, Rent, Lease PG/Sharing) */
+.options-group {
+  margin-bottom: 2rem;
+}
+
+.option-btn {
+  background-color: #f0f0f0;
+  border-radius: 2rem;
+  border: none;
+  padding: 0.8rem 2rem;
+  margin-right: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.option-btn:hover {
+  background-color: #d9d9d9;
+}
+
+.option-btn.selected {
+  background-color: #4caf50; /* Highlight selected button */
+  color: #fff;
+}
+
+/* Category Buttons */
+.category-btn {
+  background-color: #f0f0f0;
+  border-radius: 2rem;
+  border: none;
+  padding: 0.8rem 2rem;
+  margin: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.category-btn:hover {
+  background-color: #d9d9d9;
+}
+
+.category-btn.selected {
+  background-color: #4caf50; /* Highlight selected category */
+  color: #fff;
+}
+
+/* Radio buttons */
+input[type="radio"] {
+  margin-right: 0.5rem;
+}
+
+input[type="radio"]:checked + label {
+  color: #4caf50;
+}
+
+/* Property Location Input Fields */
+.property-location input {
+  display: block;
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+}
+
+.property-location input:focus {
+  border-color: #4caf50;
+  outline: none;
+}
+
+/* Responsive Layout for Category buttons */
+.category-options {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.category-options button {
+  flex: 1;
+  max-width: 20rem; /* Adjust size */
+  margin: 0.5rem;
+}
+
+.property-location input {
+  max-width: 30rem; /* Limit input size */
+}
+
+/* For better spacing and alignment */
+.options-group p,
+.category-options p {
+  margin-bottom: 1rem;
+}
+
+.residential,
+.commercial {
+  display: none;
+}
+
+.residential.show,
+.commercial.show {
+  display: block;
+}
+
+/* Buttons */
+.stepper-buttons {
+  display: flex;
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.btn {
+  padding: 1.2rem 2.8rem;
+  font-size: 1.6rem;
+  font-weight: 500;
+  border-radius: 0.8rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: white;
+  border: 0.2rem solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.btn:hover:not(.disabled) {
+  background-color: #f5f5f5;
+  transform: translateY(-0.2rem);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover:not(.disabled) {
+  background-color: red;
+}
+
+.btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Hover effects */
+.step-item:not(.completed):not(.active):hover .step-circle {
+  border-color: #999;
+  transform: scale(1.05);
+}
+
+/* Animation for step transition */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.step-item.active .step-circle {
+  animation: pulse 0.5s ease;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .stepper {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .step-line {
+    width: 0.2rem;
+    height: 3rem;
+    margin: 1rem 0;
+  }
+
+  .step-item {
+    flex-direction: row;
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+
+  .step-title {
+    margin-top: 0;
+    margin-left: 1.5rem;
+    text-align: left;
+  }
+
+  .step-circle {
+    width: 4rem;
+    height: 4rem;
+    font-size: 1.8rem;
+  }
+
+  .checkmark {
+    width: 2rem;
+    height: 2rem;
+  }
+}

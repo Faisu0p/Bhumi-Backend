@@ -1,0 +1,87 @@
+/* Container for the entire page */
+.project-view-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Title Styling */
+.title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Grid container for displaying properties */
+.properties-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+/* Styling for each property card */
+.property-card {
+  background-color: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.property-card:hover {
+  transform: scale(1.05);
+}
+
+/* Image within the property card */
+.property-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+/* Information section inside each property card */
+.property-info {
+  padding: 15px;
+}
+
+.property-name {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #007bff;
+}
+
+.property-info p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+/* Styling for links inside property card */
+.property-info a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.property-info a:hover {
+  text-decoration: underline;
+}
+
+/* Loading and error message containers */
+.loading-container,
+.error-container {
+  text-align: center;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.loading-container p,
+.error-container p {
+  font-size: 1.2rem;
+  color: #333;
+}
