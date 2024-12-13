@@ -6,8 +6,6 @@ const router = express.Router();
 // Route to fetch all builders
 router.get('/', getBuilders);
 
-
-
 // Route to add a new builder
 router.post('/', addBuilder);
 
