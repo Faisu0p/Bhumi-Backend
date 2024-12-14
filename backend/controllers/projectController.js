@@ -7,9 +7,12 @@ export const submitProject = async (req, res) => {
 
     // Add project to the database
     const projectResponse = await addProject(projectDetails);
-    
-    // Get the project ID for insertion into other tables
-    const projectId = projectResponse.projectId; // Assuming projectResponse contains the ID of the inserted project
+
+    if (!projectResponse.success) {
+      return res.status(500).json({ success: false, message: 'Failed to add project' });
+    }
+
+    const projectId = projectResponse.projectId; // Extract Project_id
 
     // Add phases to the database
     for (let phase of phases) {
@@ -36,9 +39,6 @@ export const submitProject = async (req, res) => {
     res.status(500).json({ success: false, message: 'Error submitting project data' });
   }
 };
-
-
-
 
 // Controller to fetch all property details
 export const fetchAllProjects = async (req, res) => {

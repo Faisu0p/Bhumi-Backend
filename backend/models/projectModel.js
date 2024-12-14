@@ -1,7 +1,7 @@
 import sql from 'mssql';
 import config from '../config/dbconfig.js';
 
-// Model to add project to the ProjectDetails table
+// Model to add project to the Projects table
 export const addProject = async (projectDetails) => {
   try {
     const pool = await sql.connect(config);
@@ -30,22 +30,22 @@ export const addProject = async (projectDetails) => {
         Delivery_Status, Delivery_Date, Rera_Number, Total_Towers, Total_Residential_Units, Total_Commercial_Units, Project_Type, Sector_Briefing, Project_Briefing)
         VALUES (@ProjectName, @BuilderId, @LaunchDate, @City, @Locality, @Sublocality, @CompanyName, @ShortCode, 
         @DeliveryStatus, @DeliveryDate, @ReraNumber, @TotalTowers, @TotalResidentialUnits, @TotalCommercialUnits, @ProjectType, @SectorBriefing, @ProjectBriefing);
+        SELECT SCOPE_IDENTITY() AS Project_id;
       `);
 
-    return { success: true, message: 'Project added successfully!' };
+    return { success: true, projectId: result.recordset[0].Project_id, message: 'Project added successfully!' };
   } catch (err) {
     console.error('Error adding project:', err.message);
     throw new Error('Error adding project');
   }
 };
 
-
 // Model to add phase to the Phases table
 export const addPhase = async (phaseData) => {
   try {
     const pool = await sql.connect(config);
 
-    const result = await pool.request()
+    await pool.request()
       .input('Project_id', sql.Int, phaseData.Project_id)
       .input('Phase_Number', sql.Int, phaseData.Phase_Number)
       .input('Rera_Number', sql.VarChar(100), phaseData.Rera_Number)
@@ -64,13 +64,12 @@ export const addPhase = async (phaseData) => {
   }
 };
 
-
 // Model to add residential unit to the ResidentialUnits table
 export const addResidentialUnit = async (projectId, unit) => {
   try {
     const pool = await sql.connect(config);
 
-    const result = await pool.request()
+    await pool.request()
       .input('Project_id', sql.Int, projectId)
       .input('UnitType', sql.VarChar(50), unit.unitType)
       .input('Size', sql.Float, unit.size)
@@ -99,14 +98,12 @@ export const addResidentialUnit = async (projectId, unit) => {
   }
 };
 
-
-
 // Model to add commercial unit to the CommercialUnits table
 export const addCommercialUnit = async (projectId, unit) => {
   try {
     const pool = await sql.connect(config);
 
-    const result = await pool.request()
+    await pool.request()
       .input('Project_id', sql.Int, projectId)
       .input('UnitType', sql.VarChar(50), unit.unitType)
       .input('Size', sql.Float, unit.size)
@@ -128,9 +125,6 @@ export const addCommercialUnit = async (projectId, unit) => {
   }
 };
 
-
-
-
 // Model to get all projects from the database
 export const getAllProjects = async () => {
   try {
@@ -139,7 +133,7 @@ export const getAllProjects = async () => {
       SELECT 
         p.Project_Name, 
         p.City, 
-        b.FullName, 
+        b.FullName AS BuilderName, 
         p.Total_Towers, 
         p.Company_Name, 
         p.Project_Briefing
@@ -159,4 +153,3 @@ export const getAllProjects = async () => {
     throw new Error('Error fetching all projects');
   }
 };
-
