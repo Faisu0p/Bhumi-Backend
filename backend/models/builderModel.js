@@ -108,4 +108,25 @@ export const getAllBuildersInfo = async () => {
 
 
 
+// Get Verified Builders
+export const getVerifiedBuilders = async () => {
+  try {
+    const pool = await sql.connect(config);
+
+    // Query to fetch only verified builders
+    const result = await pool.request().query(`
+      SELECT Builder_id, FullName
+      FROM Builders
+      WHERE Builder_isVerified = 1;
+    `);
+
+    return result.recordset;
+  } catch (err) {
+    console.error('Error fetching verified builders:', err.message);
+    throw new Error('Error fetching verified builders');
+  }
+};
+
+
+
 

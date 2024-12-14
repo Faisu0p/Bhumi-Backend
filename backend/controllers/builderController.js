@@ -1,4 +1,4 @@
-import { createBuilder, getBuilders, verifyBuilderById, getAllBuildersInfo } from '../models/builderModel.js';
+import { createBuilder, getBuilders, verifyBuilderById, getAllBuildersInfo, getVerifiedBuilders } from '../models/builderModel.js';
 
 //Add New Builder or Create New Builder
 export const addBuilder = async (req, res) => {
@@ -111,6 +111,31 @@ export const getAllBuildersDetails = async (req, res) => {
     console.error('Error fetching builders information:', err.message);
     return res.status(500).json({
       message: 'An error occurred while fetching builders information.',
+      error: err.message,
+    });
+  }
+};
+
+
+
+
+// Controller to fetch only verified builders
+export const fetchVerifiedBuilders = async (req, res) => {
+  try {
+    const verifiedBuilders = await getVerifiedBuilders();
+
+    if (verifiedBuilders.length === 0) {
+      return res.status(404).json({ message: 'No verified builders found.' });
+    }
+
+    return res.status(200).json({
+      message: 'Verified builders fetched successfully.',
+      data: verifiedBuilders,
+    });
+  } catch (err) {
+    console.error('Error fetching verified builders:', err.message);
+    return res.status(500).json({
+      message: 'An error occurred while fetching verified builders.',
       error: err.message,
     });
   }

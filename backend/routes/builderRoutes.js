@@ -1,5 +1,5 @@
 import express from 'express';
-import { addBuilder, fetchBuilders, verifyBuilder, getAllBuildersDetails } from '../controllers/builderController.js';
+import { addBuilder, fetchBuilders, verifyBuilder, getAllBuildersDetails, fetchVerifiedBuilders } from '../controllers/builderController.js';
 
 const router = express.Router();
 
@@ -15,6 +15,10 @@ router.post('/verifyByid', verifyBuilder);
 
 // Route to fetch all builders' information
 router.get('/details', getAllBuildersDetails);
+
+// Route to fetch only verified builders
+router.get('/verified-builders', fetchVerifiedBuilders);
+
 
 
 export default router;
