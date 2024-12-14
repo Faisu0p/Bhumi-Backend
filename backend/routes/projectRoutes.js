@@ -7,7 +7,7 @@ const router = express.Router();
 router.post('/submitProject', submitProject);
 
 // Route to fetch property details based on project ID
-router.get('/properties', fetchAllProjects);
+router.get('/all_projects', fetchAllProjects);
 
 
 export default router;
