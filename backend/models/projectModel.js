@@ -1,518 +1,162 @@
-import { query } from "../config/dbconfig.js";
+import sql from 'mssql';
+import config from '../config/dbconfig.js';
 
-// Helper function to validate parameters
-function validateInput(input, paramName) {
-  if (
-    input === undefined ||
-    input === null ||
-    (typeof input === "string" && !input.trim())
-  ) {
-    throw new Error(`${paramName} cannot be null or empty`);
+// Model to add project to the ProjectDetails table
+export const addProject = async (projectDetails) => {
+  try {
+    const pool = await sql.connect(config);
+
+    const result = await pool.request()
+      .input('ProjectName', sql.VarChar(100), projectDetails.projectName)
+      .input('BuilderId', sql.Int, projectDetails.builderId)
+      .input('LaunchDate', sql.Date, projectDetails.launchDate)
+      .input('City', sql.VarChar(100), projectDetails.city)
+      .input('Locality', sql.VarChar(100), projectDetails.locality)
+      .input('Sublocality', sql.VarChar(100), projectDetails.sublocality)
+      .input('CompanyName', sql.VarChar(100), projectDetails.companyName)
+      .input('ShortCode', sql.VarChar(100), projectDetails.shortCode)
+      .input('DeliveryStatus', sql.VarChar(50), projectDetails.deliveryStatus)
+      .input('DeliveryDate', sql.Date, projectDetails.deliveryDate)
+      .input('ReraNumber', sql.VarChar(100), projectDetails.reraNumber)
+      .input('TotalTowers', sql.Int, projectDetails.totalTowers)
+      .input('TotalResidentialUnits', sql.Int, projectDetails.totalResidentialUnits)
+      .input('TotalCommercialUnits', sql.Int, projectDetails.totalCommercialUnits)
+      .input('ProjectType', sql.VarChar(50), projectDetails.projectType)
+      .input('SectorBriefing', sql.Text, projectDetails.sectorBriefing)
+      .input('ProjectBriefing', sql.Text, projectDetails.projectBriefing)
+      .query(`
+        INSERT INTO Projects
+        (Project_Name, Builder_id, Launch_Date, City, Locality, Sublocality, Company_Name, Short_Code, 
+        Delivery_Status, Delivery_Date, Rera_Number, Total_Towers, Total_Residential_Units, Total_Commercial_Units, Project_Type, Sector_Briefing, Project_Briefing)
+        VALUES (@ProjectName, @BuilderId, @LaunchDate, @City, @Locality, @Sublocality, @CompanyName, @ShortCode, 
+        @DeliveryStatus, @DeliveryDate, @ReraNumber, @TotalTowers, @TotalResidentialUnits, @TotalCommercialUnits, @ProjectType, @SectorBriefing, @ProjectBriefing);
+      `);
+
+    return { success: true, message: 'Project added successfully!' };
+  } catch (err) {
+    console.error('Error adding project:', err.message);
+    throw new Error('Error adding project');
   }
-}
+};
 
-// Create a new project
-export async function createProject(projectData) {
-  const {
-    city,
-    locality,
-    sublocality,
-    builderName,
-    projectName,
-    companyName,
-    launchDate,
-    shortCode,
-    deliveryStatus,
-    deliveryDate,
-    reraNumber,
-    totalTowers,
-    totalFlats,
-    towerPhaseWise,
-    constructionType,
-    propertyCategory,
-    propertyType,
-    sectorBriefing,
-    projectBriefing,
-    masterLayoutPlan,
-    mediaUrls, // Array of objects { type, url, caption }
-    phases, // Array of objects { phaseNumber, reraNumber, status, deliveryDate }
-    bedrooms, // Array of objects with bedroom details
-  } = projectData;
 
-  // Validate mandatory fields
-  validateInput(projectName, "Project Name");
-  validateInput(city, "City");
-  validateInput(builderName, "Builder Name");
+// Model to add phase to the Phases table
+export const addPhase = async (phaseData) => {
+  try {
+    const pool = await sql.connect(config);
 
-  // Serialize masterLayoutPlan into a JSON string
-  const masterLayoutPlanJson = JSON.stringify(masterLayoutPlan);
+    const result = await pool.request()
+      .input('Project_id', sql.Int, phaseData.Project_id)
+      .input('Phase_Number', sql.Int, phaseData.Phase_Number)
+      .input('Rera_Number', sql.VarChar(100), phaseData.Rera_Number)
+      .input('Phase_Status', sql.VarChar(50), phaseData.Phase_Status)
+      .input('Delivery_Date', sql.Date, phaseData.Delivery_Date)
+      .input('Total_Towers', sql.Int, phaseData.Total_Towers)
+      .query(`
+        INSERT INTO Phases (Project_id, Phase_Number, Rera_Number, Phase_Status, Delivery_Date, Total_Towers)
+        VALUES (@Project_id, @Phase_Number, @Rera_Number, @Phase_Status, @Delivery_Date, @Total_Towers);
+      `);
 
-  const sql = `
-    INSERT INTO Projects (
-      city, locality, sublocality, builderName, projectName, companyName,
-      launchDate, shortCode, deliveryStatus, deliveryDate, reraNumber,
-      totalTowers, totalFlats, towerPhaseWise, constructionType,
-      propertyCategory, propertyType, sectorBriefing, projectBriefing, masterLayoutPlan 
-    ) VALUES (
-      @param0, @param1, @param2, @param3, @param4, @param5,
-      @param6, @param7, @param8, @param9, @param10,
-      @param11, @param12, @param13, @param14,
-      @param15, @param16, @param17, @param18, @param19
-    );
-    SELECT SCOPE_IDENTITY() AS id;
-  `;
+    return { success: true, message: "Phase added successfully!" };
+  } catch (err) {
+    console.error('Error adding phase:', err.message);
+    throw new Error('Error adding phase');
+  }
+};
 
-  const result = await query(sql, [
-    city,
-    locality,
-    sublocality,
-    builderName,
-    projectName,
-    companyName,
-    launchDate,
-    shortCode,
-    deliveryStatus,
-    deliveryDate,
-    reraNumber,
-    totalTowers,
-    totalFlats,
-    towerPhaseWise,
-    constructionType,
-    propertyCategory,
-    propertyType,
-    sectorBriefing,
-    projectBriefing,
-    masterLayoutPlanJson,
-  ]);
 
-  const projectId = result[0].id;
+// Model to add residential unit to the ResidentialUnits table
+export const addResidentialUnit = async (projectId, unit) => {
+  try {
+    const pool = await sql.connect(config);
 
-  // Insert related data (media, phases, bedrooms)
-  await Promise.all([
-    insertMedia(projectId, mediaUrls),
-    insertPhases(projectId, phases),
-    insertBedrooms(projectId, bedrooms),
-  ]);
+    const result = await pool.request()
+      .input('Project_id', sql.Int, projectId)
+      .input('UnitType', sql.VarChar(50), unit.unitType)
+      .input('Size', sql.Float, unit.size)
+      .input('Layout', sql.VarChar(50), unit.layout)
+      .input('Facing', sql.VarChar(50), unit.facing)
+      .input('Bedrooms', sql.Int, unit.bedrooms)
+      .input('Bathrooms', sql.Int, unit.bathrooms)
+      .input('Balconies', sql.Int, unit.balconies)
+      .input('StudyRoom', sql.Bit, unit.studyRoom)
+      .input('ServantRoom', sql.Bit, unit.servantRoom)
+      .input('PoojaRoom', sql.Bit, unit.poojaRoom)
+      .input('FullyFurnished', sql.Bit, unit.fullyFurnished)
+      .input('SemiFurnished', sql.Bit, unit.semiFurnished)
+      .input('Unfurnished', sql.Bit, unit.unfurnished)
+      .query(`
+        INSERT INTO Residential_Units (Project_id, Unit_Type, Size, Layout, Facing, Bedrooms, Bathrooms, Balconies, 
+                                      Study_Room, Servant_Room, Pooja_Room, Fully_Furnished, Semi_Furnished, Unfurnished)
+        VALUES (@Project_id, @UnitType, @Size, @Layout, @Facing, @Bedrooms, @Bathrooms, @Balconies, 
+                @StudyRoom, @ServantRoom, @PoojaRoom, @FullyFurnished, @SemiFurnished, @Unfurnished);
+      `);
 
-  return projectId;
-}
+    return { success: true, message: 'Residential Unit added successfully!' };
+  } catch (err) {
+    console.error('Error adding residential unit:', err.message);
+    throw new Error('Error adding residential unit');
+  }
+};
 
-// Insert media URLs
-async function insertMedia(projectId, mediaUrls) {
-  if (mediaUrls && mediaUrls.length > 0) {
-    const mediaSql = `
-      INSERT INTO Media (projectId, type, url, caption)
-      VALUES (@param0, @param1, @param2, @param3);
-    `;
-    for (const media of mediaUrls) {
-      await query(mediaSql, [projectId, media.type, media.url, media.caption]);
+
+
+// Model to add commercial unit to the CommercialUnits table
+export const addCommercialUnit = async (projectId, unit) => {
+  try {
+    const pool = await sql.connect(config);
+
+    const result = await pool.request()
+      .input('Project_id', sql.Int, projectId)
+      .input('UnitType', sql.VarChar(50), unit.unitType)
+      .input('Size', sql.Float, unit.size)
+      .input('Layout', sql.VarChar(50), unit.layout)
+      .input('FloorArea', sql.Float, unit.floorArea)
+      .input('Facing', sql.VarChar(50), unit.facing)
+      .input('ParkingSpaces', sql.Int, unit.parkingSpaces)
+      .input('IsRenovated', sql.Bit, unit.isRenovated)
+      .input('CommercialFurnishings', sql.Bit, unit.commercialFurnishings)
+      .query(`
+        INSERT INTO Commercial_Units (Project_id, Unit_Type, Size, Layout, Floor_Area, Facing, Parking_Spaces, Is_Renovated, Commercial_Furnishings)
+        VALUES (@Project_id, @UnitType, @Size, @Layout, @FloorArea, @Facing, @ParkingSpaces, @IsRenovated, @CommercialFurnishings);
+      `);
+
+    return { success: true, message: 'Commercial Unit added successfully!' };
+  } catch (err) {
+    console.error('Error adding commercial unit:', err.message);
+    throw new Error('Error adding commercial unit');
+  }
+};
+
+
+
+
+// Model to get all projects from the database
+export const getAllProjects = async () => {
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool.request().query(`
+      SELECT 
+        p.Project_Name, 
+        p.City, 
+        b.Full_Name, 
+        p.Total_Towers, 
+        p.Company_Name, 
+        p.Project_Briefing
+      FROM 
+        Projects p
+      INNER JOIN 
+        Builders b ON p.Builder_id = b.Builder_id;
+    `);
+    
+    if (result.recordset.length > 0) {
+      return { success: true, data: result.recordset };
+    } else {
+      return { success: false, message: 'No projects found' };
     }
+  } catch (err) {
+    console.error('Error fetching all projects:', err.message);
+    throw new Error('Error fetching all projects');
   }
-}
+};
 
-// Insert phases
-async function insertPhases(projectId, phases) {
-  if (phases && phases.length > 0) {
-    const phaseSql = `
-      INSERT INTO Phases (projectId, phaseNumber, reraNumber, status, deliveryDate)
-      VALUES (@param0, @param1, @param2, @param3, @param4);
-    `;
-    for (const phase of phases) {
-      await query(phaseSql, [
-        projectId,
-        phase.phaseNumber,
-        phase.reraNumber,
-        phase.status,
-        phase.deliveryDate,
-      ]);
-    }
-  }
-}
-
-// Insert bedrooms
-async function insertBedrooms(projectId, bedrooms) {
-  if (bedrooms && bedrooms.length > 0) {
-    const bedroomSql = `
-      INSERT INTO Bedrooms (projectId, size, superArea, builtUpArea, carpetArea, toilets, balconies,
-                            servantQuarters, studyRoom, poojaRoom, pricePerSqft, priceRangeMin, priceRangeMax)
-      VALUES (@param0, @param1, @param2, @param3, @param4, @param5, @param6,
-              @param7, @param8, @param9, @param10, @param11, @param12);
-    `;
-    for (const bedroom of bedrooms) {
-      await query(bedroomSql, [
-        projectId,
-        bedroom.size,
-        bedroom.superArea,
-        bedroom.builtUpArea,
-        bedroom.carpetArea,
-        bedroom.toilets,
-        bedroom.balconies,
-        bedroom.servantQuarters,
-        bedroom.studyRoom,
-        bedroom.poojaRoom,
-        bedroom.pricePerSqft,
-        bedroom.priceRangeMin,
-        bedroom.priceRangeMax,
-      ]);
-    }
-  }
-}
-
-// Retrieve a project by ID
-export async function getProjectById(id) {
-  validateInput(id, "Project ID");
-
-  const sql = `
-    SELECT p.*, 
-           (SELECT * FROM Phases WHERE projectId = p.id FOR JSON PATH) AS phases,
-           (SELECT * FROM Bedrooms WHERE projectId = p.id FOR JSON PATH) AS bedrooms,
-           (SELECT * FROM Media WHERE projectId = p.id FOR JSON PATH) AS media,
-           JSON_QUERY(p.masterLayoutPlan, '$') AS masterLayoutPlan
-    FROM Projects p
-    WHERE p.id = @param0;
-  `;
-  const result = await query(sql, [id]);
-
-  return result[0];
-}
-
-// Update a project
-export async function updateProject(id, projectData) {
-  validateInput(id, "Project ID");
-
-  const {
-    city,
-    locality,
-    sublocality,
-    builderName,
-    projectName,
-    companyName,
-    launchDate,
-    shortCode,
-    deliveryStatus,
-    deliveryDate,
-    reraNumber,
-    totalTowers,
-    totalFlats,
-    towerPhaseWise,
-    constructionType,
-    propertyCategory,
-    propertyType,
-    sectorBriefing,
-    projectBriefing,
-    masterLayoutPlan,
-  } = projectData;
-
-  const masterLayoutPlanJson = JSON.stringify(masterLayoutPlan);
-
-  const sql = `
-    UPDATE Projects
-    SET city = @param1, locality = @param2, sublocality = @param3,
-        builderName = @param4, projectName = @param5, companyName = @param6,
-        launchDate = @param7, shortCode = @param8, deliveryStatus = @param9,
-        deliveryDate = @param10, reraNumber = @param11,
-        totalTowers = @param12, totalFlats = @param13, towerPhaseWise = @param14,
-        constructionType = @param15, propertyCategory = @param16,
-        propertyType = @param17, sectorBriefing = @param18, projectBriefing = @param19,
-        masterLayoutPlan = @param20
-    WHERE id = @param0;
-  `;
-
-  await query(sql, [
-    id,
-    city,
-    locality,
-    sublocality,
-    builderName,
-    projectName,
-    companyName,
-    launchDate,
-    shortCode,
-    deliveryStatus,
-    deliveryDate,
-    reraNumber,
-    totalTowers,
-    totalFlats,
-    towerPhaseWise,
-    constructionType,
-    propertyCategory,
-    propertyType,
-    sectorBriefing,
-    projectBriefing,
-    masterLayoutPlanJson,
-  ]);
-}
-
-// Delete a project and associated data
-export async function deleteProject(id) {
-  validateInput(id, "Project ID");
-
-  const sql = `
-    DELETE FROM Media WHERE projectId = @param0;
-    DELETE FROM Bedrooms WHERE projectId = @param0;
-    DELETE FROM Phases WHERE projectId = @param0;
-    DELETE FROM Projects WHERE id = @param0;
-  `;
-  await query(sql, [id]);
-}
-
-// Retrieve all projects
-export async function getAllProjects() {
-  const sql = "SELECT * FROM Projects";
-  return await query(sql);
-}
-
-// import { query } from "../config/dbconfig.js";
-
-// // Helper function to validate parameters
-// function validateInput(input, paramName) {
-//   if (
-//     input === undefined ||
-//     input === null ||
-//     (typeof input === "string" && !input.trim())
-//   ) {
-//     throw new Error(`${paramName} cannot be null or empty`);
-//   }
-// }
-
-// export async function createProject(projectData) {
-//   const {
-//     city,
-//     locality,
-//     sublocality,
-//     builderName,
-//     projectName,
-//     companyName,
-//     launchDate,
-//     shortCode,
-//     deliveryStatus,
-//     deliveryDate,
-//     reraNumber,
-//     totalTowers,
-//     totalFlats,
-//     towerPhaseWise,
-//     constructionType,
-//     propertyCategory,
-//     propertyType,
-//     sectorBriefing,
-//     projectBriefing,
-//     masterLayoutPlan,
-//     mediaUrls, // Array of objects { type, url, caption }
-//     phases, // Array of objects { phaseNumber, reraNumber, status, deliveryDate }
-//     bedrooms, // Array of objects with bedroom details
-//   } = projectData;
-
-//   // Validate mandatory fields
-//   validateInput(projectName, "Project Name");
-//   validateInput(city, "City");
-//   validateInput(builderName, "Builder Name");
-
-//   // Serialize masterLayoutPlan into a JSON string
-//   const masterLayoutPlanJson = JSON.stringify(masterLayoutPlan);
-
-//   // Insert main project details
-//   const sql = `
-//     INSERT INTO Projects (
-//       city, locality, sublocality, builderName, projectName, companyName,
-//       launchDate, shortCode, deliveryStatus, deliveryDate, reraNumber,
-//       totalTowers, totalFlats, towerPhaseWise, constructionType,
-//       propertyCategory, propertyType, sectorBriefing, projectBriefing, masterLayoutPlan
-//     ) VALUES (
-//       @param0, @param1, @param2, @param3, @param4, @param5,
-//       @param6, @param7, @param8, @param9, @param10,
-//       @param11, @param12, @param13, @param14,
-//       @param15, @param16, @param17, @param18, @param19
-//     );
-//     SELECT SCOPE_IDENTITY() AS id;
-//   `;
-
-//   const result = await query(sql, [
-//     city,
-//     locality,
-//     sublocality,
-//     builderName,
-//     projectName,
-//     companyName,
-//     launchDate,
-//     shortCode,
-//     deliveryStatus,
-//     deliveryDate,
-//     reraNumber,
-//     totalTowers,
-//     totalFlats,
-//     towerPhaseWise,
-//     constructionType,
-//     propertyCategory,
-//     propertyType,
-//     sectorBriefing,
-//     projectBriefing,
-//     masterLayoutPlanJson,
-//   ]);
-
-//   const projectId = result[0].id;
-
-//   // Insert media URLs
-//   if (mediaUrls && mediaUrls.length > 0) {
-//     for (const media of mediaUrls) {
-//       const mediaSql = `
-//         INSERT INTO Media (projectId, type, url, caption)
-//         VALUES (@param0, @param1, @param2, @param3);
-//       `;
-//       await query(mediaSql, [projectId, media.type, media.url, media.caption]);
-//     }
-//   }
-
-//   // Insert phases
-//   if (phases && phases.length > 0) {
-//     for (const phase of phases) {
-//       const phaseSql = `
-//         INSERT INTO Phases (projectId, phaseNumber, reraNumber, status, deliveryDate)
-//         VALUES (@param0, @param1, @param2, @param3, @param4);
-//       `;
-//       await query(phaseSql, [
-//         projectId,
-//         phase.phaseNumber,
-//         phase.reraNumber,
-//         phase.status,
-//         phase.deliveryDate,
-//       ]);
-//     }
-//   }
-
-//   // Insert bedrooms
-//   if (bedrooms && bedrooms.length > 0) {
-//     for (const bedroom of bedrooms) {
-//       const bedroomSql = `
-//         INSERT INTO Bedrooms (projectId, size, superArea, builtUpArea, carpetArea, toilets, balconies,
-//                               servantQuarters, studyRoom, poojaRoom, pricePerSqft, priceRangeMin, priceRangeMax)
-//         VALUES (@param0, @param1, @param2, @param3, @param4, @param5, @param6,
-//                 @param7, @param8, @param9, @param10, @param11, @param12);
-//       `;
-//       await query(bedroomSql, [
-//         projectId,
-//         bedroom.size,
-//         bedroom.superArea,
-//         bedroom.builtUpArea,
-//         bedroom.carpetArea,
-//         bedroom.toilets,
-//         bedroom.balconies,
-//         bedroom.servantQuarters,
-//         bedroom.studyRoom,
-//         bedroom.poojaRoom,
-//         bedroom.pricePerSqft,
-//         bedroom.priceRangeMin,
-//         bedroom.priceRangeMax,
-//       ]);
-//     }
-//   }
-
-//   return projectId;
-// }
-
-// // Retrieve a project by ID, including the master layout plans as an array
-// export async function getProjectById(id) {
-//   validateInput(id, "Project ID");
-
-//   const sql = `
-//     SELECT p.*,
-//            (SELECT * FROM Phases WHERE projectId = p.id FOR JSON PATH) AS phases,
-//            (SELECT * FROM Bedrooms WHERE projectId = p.id FOR JSON PATH) AS bedrooms,
-//            (SELECT feature FROM AdditionalFeatures WHERE projectId = p.id FOR JSON PATH) AS additionalFeatures,
-//            (SELECT * FROM Media WHERE projectId = p.id FOR JSON PATH) AS media,
-//            JSON_QUERY(p.masterLayoutPlan, '$') AS masterLayoutPlan  -- Use JSON_QUERY for arrays/objects
-//     FROM Projects p
-//     WHERE p.id = @param0
-//   `;
-//   const result = await query(sql, [id]);
-
-//   // masterLayoutPlan is already parsed by SQL query (no need to parse it in JS)
-//   return result[0];
-// }
-
-// // Update a project
-// export async function updateProject(id, projectData) {
-//   validateInput(id, "Project ID");
-
-//   const {
-//     city,
-//     locality,
-//     sublocality,
-//     builderName,
-//     projectName,
-//     companyName,
-//     launchDate,
-//     shortCode,
-//     deliveryStatus,
-//     deliveryDate,
-//     reraNumber,
-//     totalTowers,
-//     totalFlats,
-//     towerPhaseWise,
-//     constructionType,
-//     propertyCategory,
-//     propertyType,
-//     sectorBriefing,
-//     projectBriefing,
-//     masterLayoutPlan,
-//   } = projectData;
-
-//   // Serialize masterLayoutPlan into a JSON string before update
-//   const masterLayoutPlanJson = JSON.stringify(masterLayoutPlan);
-
-//   const sql = `
-//     UPDATE Projects
-//     SET city = @param1, locality = @param2, sublocality = @param3,
-//         builderName = @param4, projectName = @param5, companyName = @param6,
-//         launchDate = @param7, shortCode = @param8, deliveryStatus = @param9,
-//         deliveryDate = @param10, reraNumber = @param11,
-//         totalTowers = @param12, totalFlats = @param13, towerPhaseWise = @param14,
-//         constructionType = @param15, propertyCategory = @param16,
-//         propertyType = @param17, sectorBriefing = @param18, projectBriefing = @param19,
-//         masterLayoutPlan = @param20
-//     WHERE id = @param0
-//   `;
-
-//   await query(sql, [
-//     id,
-//     city,
-//     locality,
-//     sublocality,
-//     builderName,
-//     projectName,
-//     companyName,
-//     launchDate,
-//     shortCode,
-//     deliveryStatus,
-//     deliveryDate,
-//     reraNumber,
-//     totalTowers,
-//     totalFlats,
-//     towerPhaseWise,
-//     constructionType,
-//     propertyCategory,
-//     propertyType,
-//     sectorBriefing,
-//     projectBriefing,
-//     masterLayoutPlanJson, // Use serialized JSON for the layout plan
-//   ]);
-// }
-
-// // Delete a project and associated data
-// export async function deleteProject(id) {
-//   validateInput(id, "Project ID");
-
-//   const sql = `
-//     DELETE FROM Media WHERE projectId = @param0;
-//     DELETE FROM AdditionalFeatures WHERE projectId = @param0;
-//     DELETE FROM Bedrooms WHERE projectId = @param0;
-//     DELETE FROM Phases WHERE projectId = @param0;
-//     DELETE FROM Projects WHERE id = @param0;
-//   `;
-//   await query(sql, [id]);
-// }
-
-// // Retrieve all projects
-// export async function getAllProjects() {
-//   const sql = "SELECT * FROM Projects";
-//   return await query(sql);
-// }

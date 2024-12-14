@@ -1,6 +1,8 @@
 import sql from 'mssql'; 
 import config from '../config/dbconfig.js'; 
 
+
+//Create New Builder
 export const createBuilder = async (builderData) => {
   const {
     city,
@@ -48,38 +50,62 @@ export const createBuilder = async (builderData) => {
   }
 };
 
-export const getAllBuilders = async () => {
-  const sqlQuery = "SELECT * FROM Builders";
-  return await query(sqlQuery);
-}
-
-export const getBuildersName = async () => {
+//Get Builder id and Names
+export const getBuilders = async () => {
   try {
-    const pool = await sql.connect(config);
+    const pool = await sql.connect(config); 
+
     const result = await pool.request().query(`
-      SELECT id, builderCompleteName FROM Builders;
+      SELECT Builder_id, FullName 
+      FROM Builders;
     `);
+
     return result.recordset;
   } catch (err) {
-    console.error("Error fetching builders:", err);
-    throw new Error("Error fetching builders");
+    console.error('Error fetching builders:', err.message);
+    throw err;
   }
 };
 
-export const verifyBuilder = async (builderCompleteName) => {
+
+// Verify Builder by ID
+export const verifyBuilderById = async (builderId) => {
   try {
-    const pool = await sql.connect(config);
+    const pool = await sql.connect(config); 
+
     const result = await pool.request()
-      .input('builderCompleteName', sql.VarChar, builderCompleteName)
+      .input('builderId', sql.Int, builderId)
       .query(`
         UPDATE Builders
         SET Builder_isVerified = 1
-        WHERE FullName = @builderCompleteName;
+        WHERE Builder_id = @builderId;
       `);
 
     return result.rowsAffected[0] > 0;
   } catch (err) {
-    console.error("Error verifying builder:", err);
-    throw new Error("Error verifying builder");
+    console.error('Error verifying builder by ID:', err.message);
+    throw new Error('Error updating builder verification status');
   }
 };
+
+
+// Get All Builders Information
+export const getAllBuildersInfo = async () => {
+  try {
+    const pool = await sql.connect(config); 
+
+    const result = await pool.request().query(`
+      SELECT Builder_id, City, FullName, NickName, Builder_logo, Years_of_experience, Short_Description, Builder_isVerified
+      FROM Builders;
+    `);
+
+    return result.recordset;
+  } catch (err) {
+    console.error('Error fetching all builders information:', err.message);
+    throw new Error('Error fetching all builders information');
+  }
+};
+
+
+
+
