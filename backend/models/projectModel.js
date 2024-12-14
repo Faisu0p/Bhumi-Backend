@@ -139,7 +139,7 @@ export const getAllProjects = async () => {
       SELECT 
         p.Project_Name, 
         p.City, 
-        b.Full_Name, 
+        b.FullName, 
         p.Total_Towers, 
         p.Company_Name, 
         p.Project_Briefing

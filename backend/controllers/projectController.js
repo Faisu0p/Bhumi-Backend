@@ -1,4 +1,4 @@
-import { addProject, addPhase, addResidentialUnit, addCommercialUnit, getPropertyDetails } from '../models/projectModel.js';
+import { addProject, addPhase, addResidentialUnit, addCommercialUnit, getAllProjects } from '../models/projectModel.js';
 
 // Controller to handle form submission
 export const submitProject = async (req, res) => {

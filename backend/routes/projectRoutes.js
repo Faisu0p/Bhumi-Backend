@@ -1,5 +1,5 @@
 import express from 'express';
-import { submitProject } from '../controllers/projectController.js';
+import { submitProject, fetchAllProjects } from '../controllers/projectController.js';
 
 const router = express.Router();
 
@@ -7,7 +7,7 @@ const router = express.Router();
 router.post('/submitProject', submitProject);
 
 // Route to fetch property details based on project ID
-router.get('/properties', fetchPropertyDetails);
+router.get('/properties', fetchAllProjects);
 
 
 export default router;
