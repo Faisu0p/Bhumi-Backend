@@ -25,15 +25,16 @@ export const addProject = async (projectDetails) => {
       .input('SectorBriefing', sql.Text, projectDetails.sectorBriefing)
       .input('ProjectBriefing', sql.Text, projectDetails.projectBriefing)
       .input('ProjectIsVerified', sql.Bit, projectDetails.projectIsVerified)
+      .input('Project_Media', sql.VarChar(1000), projectDetails.uploadedMedia)
       .query(`
         INSERT INTO Projects
         (Project_Name, Builder_id, Launch_Date, City, Locality, Sublocality, Company_Name, Short_Code, 
         Delivery_Status, Delivery_Date, Rera_Number, Total_Towers, Total_Residential_Units, Total_Commercial_Units, 
-        Project_Type, Sector_Briefing, Project_Briefing, Project_isVerified)
+        Project_Type, Sector_Briefing, Project_Briefing, Project_isVerified, Project_Media)
         VALUES 
         (@ProjectName, @BuilderId, @LaunchDate, @City, @Locality, @Sublocality, @CompanyName, @ShortCode, 
         @DeliveryStatus, @DeliveryDate, @ReraNumber, @TotalTowers, @TotalResidentialUnits, @TotalCommercialUnits, 
-        @ProjectType, @SectorBriefing, @ProjectBriefing, @ProjectIsVerified);
+        @ProjectType, @SectorBriefing, @ProjectBriefing, @ProjectIsVerified, @Project_Media);
         SELECT SCOPE_IDENTITY() AS Project_id;
       `);
 
