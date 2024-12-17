@@ -1,4 +1,4 @@
-import { addProject, addPhase, addUnit, addAmenities } from '../models/projectModel.js';
+import { addProject, addPhase, addUnit, addAmenities, getAllProjects } from '../models/projectModel.js';
 
 // Controller to handle form submission
 export const submitProject = async (req, res) => {
@@ -51,17 +51,17 @@ export const submitProject = async (req, res) => {
 
 
 // Controller to fetch all property details
-// export const fetchAllProjects = async (req, res) => {
-//   try {
-//     const result = await getAllProjects();
+ export const fetchAllProjects = async (req, res) => {
+   try {
+     const result = await getAllProjects();
 
-//     if (result.success) {
-//       return res.status(200).json(result);
-//     } else {
-//       return res.status(404).json(result);
-//     }
-//   } catch (error) {
-//     console.error('Error fetching all projects:', error);
-//     return res.status(500).json({ success: false, message: 'Server error' });
-//   }
-// };
+     if (result.success) {
+       return res.status(200).json(result);
+     } else {
+       return res.status(404).json(result);
+     }
+   } catch (error) {
+     console.error('Error fetching all projects:', error);
+     return res.status(500).json({ success: false, message: 'Server error' });
+   }
+ };

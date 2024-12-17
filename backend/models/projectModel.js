@@ -160,30 +160,30 @@ export const addAmenities = async (projectId, amenities) => {
 
 
 // Model to get all projects from the database
-// export const getAllProjects = async () => {
-//   try {
-//     const pool = await sql.connect(config);
-//     const result = await pool.request().query(`
-//       SELECT 
-//         p.Project_Name, 
-//         p.City, 
-//         b.FullName AS BuilderName, 
-//         p.Total_Towers, 
-//         p.Company_Name, 
-//         p.Project_Briefing
-//       FROM 
-//         Projects p
-//       INNER JOIN 
-//         Builders b ON p.Builder_id = b.Builder_id;
-//     `);
-    
-//     if (result.recordset.length > 0) {
-//       return { success: true, data: result.recordset };
-//     } else {
-//       return { success: false, message: 'No projects found' };
-//     }
-//   } catch (err) {
-//     console.error('Error fetching all projects:', err.message);
-//     throw new Error('Error fetching all projects');
-//   }
-// };
+ export const getAllProjects = async () => {
+   try {
+     const pool = await sql.connect(config);
+     const result = await pool.request().query(`
+       SELECT 
+         p.Project_Name, 
+         p.City, 
+         b.FullName AS BuilderName, 
+         p.Total_Towers, 
+         p.Company_Name, 
+         p.Project_Briefing
+       FROM 
+         Projects p
+       INNER JOIN 
+         Builders b ON p.Builder_id = b.Builder_id;
+     `);
+  
+     if (result.recordset.length > 0) {
+       return { success: true, data: result.recordset };
+     } else {
+       return { success: false, message: 'No projects found' };
+     }
+   } catch (err) {
+     console.error('Error fetching all projects:', err.message);
+     throw new Error('Error fetching all projects');
+   }
+ };
