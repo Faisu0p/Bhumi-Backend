@@ -1,9 +1,9 @@
-import { addProject, addPhase, addUnit, addUnitDetail } from '../models/projectModel.js';
+import { addProject, addPhase, addUnit, addAmenities } from '../models/projectModel.js';
 
 // Controller to handle form submission
 export const submitProject = async (req, res) => {
   try {
-    const { projectDetails, phases, units } = req.body;
+    const { projectDetails, phases, units, amenities } = req.body;
 
     // Add project to the database
     const projectResponse = await addProject(projectDetails);
@@ -29,16 +29,15 @@ export const submitProject = async (req, res) => {
         if (!unitResponse.success) {
           return res.status(500).json({ success: false, message: 'Failed to add unit' });
         }
+      }
+    }
 
-        // Extract unitId from the response
-        const unitId = unitResponse.unitId;
-
-        // Add unit details
-        for (let unitDetail of unit.unitDetails) {
-          const unitDetailResponse = await addUnitDetail(unitId, unitDetail);
-          if (!unitDetailResponse.success) {
-            return res.status(500).json({ success: false, message: 'Failed to add unit detail' });
-          }
+    // Add amenities to the database
+    if (amenities && amenities.length > 0) {
+      for (let amenity of amenities) {
+        const amenityResponse = await addAmenities(projectId, amenity);
+        if (!amenityResponse.success) {
+          return res.status(500).json({ success: false, message: 'Failed to add amenities' });
         }
       }
     }
@@ -49,6 +48,7 @@ export const submitProject = async (req, res) => {
     res.status(500).json({ success: false, message: 'Error submitting project data' });
   }
 };
+
 
 // Controller to fetch all property details
 // export const fetchAllProjects = async (req, res) => {
