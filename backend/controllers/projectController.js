@@ -1,51 +1,26 @@
-import { addProject, addPhase, addUnit, addAmenities, getAllProjects } from '../models/projectModel.js';
+import { addProjectWithPhasesAndUnits, getAllProjects } from '../models/projectModel.js';
 
-// Controller to handle form submission
-export const submitProject = async (req, res) => {
+// Controller to handle project creation request
+export const createProject = async (req, res) => {
   try {
-    const { projectDetails, phases, units, amenities } = req.body;
+    const projectData = req.body; // Assuming the data is sent in the request body
 
-    // Add project to the database
-    const projectResponse = await addProject(projectDetails);
+    // Call the function to add project, phases, units, and unit details
+    const result = await addProjectWithPhasesAndUnits(projectData);
 
-    if (!projectResponse.success) {
-      return res.status(500).json({ success: false, message: 'Failed to add project' });
-    }
-
-    const projectId = projectResponse.projectId; // Extract Project_id
-
-    // Add phases to the database
-    for (let phase of phases) {
-      await addPhase({ Project_id: projectId, ...phase });
-    }
-
-    // Add units to the database
-    for (let phase of phases) {
-      const phaseId = phase.Phase_id;
-      const phaseUnits = units.filter(unit => unit.Phase_id === phaseId);
-      
-      for (let unit of phaseUnits) {
-        const unitResponse = await addUnit(phaseId, unit);
-        if (!unitResponse.success) {
-          return res.status(500).json({ success: false, message: 'Failed to add unit' });
-        }
-      }
-    }
-
-    // Add amenities to the database
-    if (amenities && amenities.length > 0) {
-      for (let amenity of amenities) {
-        const amenityResponse = await addAmenities(projectId, amenity);
-        if (!amenityResponse.success) {
-          return res.status(500).json({ success: false, message: 'Failed to add amenities' });
-        }
-      }
-    }
-
-    res.status(200).json({ success: true, message: 'Project submitted successfully!' });
+    // Return success response
+    return res.status(201).json({
+      success: true,
+      projectId: result.projectId,
+      message: result.message,
+    });
   } catch (error) {
-    console.error('Error submitting project:', error.message);
-    res.status(500).json({ success: false, message: 'Error submitting project data' });
+    // Handle errors and return an error response
+    console.error('Error in createProject controller:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'An error occurred while creating the project.',
+    });
   }
 };
 
