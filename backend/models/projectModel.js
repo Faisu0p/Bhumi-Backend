@@ -32,13 +32,18 @@ export const addProjectWithPhasesAndUnits = async (projectData) => {
     .input('projectBriefing', sql.Text, projectData.projectBriefing)
     .input('projectIsVerified', sql.Bit, projectData.projectIsVerified)
     .input('projectMedia', sql.VarChar, projectData.projectMedia)
+    .input('state', sql.VarChar, projectData.state)
+    .input('completeAddress', sql.VarChar, projectData.completeAddress)
+    .input('landmark', sql.VarChar, projectData.landmark)
+    .input('pinCode', sql.VarChar, projectData.pinCode)
     
     .query(`
       INSERT INTO Projects (
         Project_Name,Builder_id,Launch_Date,City,Locality,Sublocality,
         Company_Name,Short_Code,Delivery_Status,Delivery_Date,Rera_Number,
         Total_Towers,Total_Residential_Units,Total_Commercial_Units,
-        Project_Type,Sector_Briefing,Project_Briefing,Project_isVerified,Project_Media
+        Project_Type,Sector_Briefing,Project_Briefing,Project_isVerified,Project_Media,
+        State,Complete_Address,Landmark,Pin_Code
         )
 
       VALUES (
@@ -46,7 +51,7 @@ export const addProjectWithPhasesAndUnits = async (projectData) => {
         @companyName,@shortCode,@deliveryStatus,@deliveryDate,@reraNumber,
         @totalTowers,@totalResidentialUnits,@totalCommercialUnits,
         @projectType,@sectorBriefing,@projectBriefing,@projectIsVerified,
-        @projectMedia
+        @projectMedia,@state,@completeAddress,@landmark,@pinCode
         );
 
       SELECT SCOPE_IDENTITY() AS Project_id;
