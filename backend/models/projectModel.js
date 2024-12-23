@@ -337,3 +337,21 @@ export const verifyProjectById = async (projectId) => {
 };
 
 
+// Get Project ID and Names
+export const getProjects = async () => {
+  try {
+    const pool = await sql.connect(config); 
+
+    const result = await pool.request().query(`
+      SELECT Project_id, Project_Name
+      FROM Projects;
+    `);
+
+    return result.recordset;
+  } catch (err) {
+    console.error('Error fetching projects:', err.message);
+    throw err;
+  }
+};
+
+

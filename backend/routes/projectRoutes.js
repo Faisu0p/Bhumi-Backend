@@ -1,5 +1,5 @@
 import express from 'express';
-import { createProject, fetchAllProjects, verifyProject} from '../controllers/projectController.js';
+import { createProject, fetchAllProjects, verifyProject, fetchProjects} from '../controllers/projectController.js';
 
 const router = express.Router();
 
@@ -11,6 +11,10 @@ router.get('/all_projects', fetchAllProjects);
 
 // Route to verify a project by its ID
 router.post('/verifyProjectById', verifyProject);
+
+// Route to get Project ID and names
+router.get('/names_id', fetchProjects);
+
 
 
 export default router;
