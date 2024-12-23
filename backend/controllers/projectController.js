@@ -1,4 +1,4 @@
-import { addProjectWithPhasesAndUnits, getAllProjects } from '../models/projectModel.js';
+import { addProjectWithPhasesAndUnits, getAllProjects, verifyProjectById } from '../models/projectModel.js';
 
 // Controller to handle project creation request
 export const createProject = async (req, res) => {
@@ -40,3 +40,27 @@ export const createProject = async (req, res) => {
      return res.status(500).json({ success: false, message: 'Server error' });
    }
  };
+
+
+ // Controller to verify a project by its ID
+export const verifyProject = async (req, res) => {
+  const { projectId } = req.body;
+
+  if (!projectId) {
+    return res.status(400).json({ message: 'Project ID is required' });
+  }
+
+  try {
+    const isVerified = await verifyProjectById(projectId);
+
+    if (isVerified) {
+      return res.status(200).json({ message: 'Project verified successfully.' });
+    } else {
+      return res.status(404).json({ message: 'Project not found or already verified.' });
+    }
+  } catch (err) {
+    console.error('Error verifying project by ID:', err.message);
+    return res.status(500).json({ message: 'An error occurred while verifying the project by ID', error: err.message });
+  }
+};
+

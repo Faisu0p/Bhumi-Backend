@@ -315,3 +315,25 @@ export const addProjectWithPhasesAndUnits = async (projectData) => {
      throw new Error('Error fetching all projects');
    }
  };
+
+// Verify Project by ID
+export const verifyProjectById = async (projectId) => {
+  try {
+    const pool = await sql.connect(config);
+
+    const result = await pool.request()
+      .input('projectId', sql.Int, projectId)
+      .query(`
+        UPDATE Projects
+        SET Project_isVerified = 1
+        WHERE Project_id = @projectId;
+      `);
+
+    return result.rowsAffected[0] > 0;
+  } catch (err) {
+    console.error('Error verifying project by ID:', err.message);
+    throw new Error('Error updating project verification status');
+  }
+};
+
+
