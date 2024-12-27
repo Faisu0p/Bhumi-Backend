@@ -1,31 +1,34 @@
 import express from 'express';
-import { 
-  addLocation, 
-  getStatesController, 
-  getCitiesByStateController, 
-  getLocalitiesByCityController, 
-  getSublocalitiesByLocalityController, 
-  getPincodesByLocalityController 
-} from '../controllers/locationController.js';
+import {addStateController, addCityController, 
+  getStatesController, addLocalityController, 
+  getCitiesController, addSubLocalityController, 
+  addPincodeController, getLocalitiesController} from '../controllers/locationController.js';
 
 const router = express.Router();
 
-// Route to add a location (state, city, locality, sublocality, pincode)
-router.post('/add', addLocation);  // POST request for adding locations
+// Route for adding a state
+router.post('/add-state', addStateController);
 
-// Route to get states
-router.get('/states', getStatesController);  // GET request for fetching states
+// Route for adding a city
+router.post('/add-city', addCityController);
 
-// Route to get cities by stateId
-router.get('/cities', getCitiesByStateController);  // GET request for fetching cities by stateId
+// Route for adding a locality
+router.post('/add-locality', addLocalityController);
 
-// Route to get localities by cityId
-router.get('/localities', getLocalitiesByCityController);  // GET request for fetching localities by cityId
+// Route for adding a sublocality
+router.post('/add-sublocality', addSubLocalityController);
 
-// Route to get sublocalities by localityId
-router.get('/sublocalities', getSublocalitiesByLocalityController);  // GET request for fetching sublocalities by localityId
+// Route for adding a pincode
+router.post('/add-pincode', addPincodeController);
 
-// Route to get pincodes by localityId
-router.get('/pincodes', getPincodesByLocalityController);  // GET request for fetching pincodes by localityId
+// Route for fetching all states
+router.get('/states', getStatesController);
+
+// Route for getting all cities
+router.get('/cities', getCitiesController);
+
+// Route for getting all localities
+router.get('/localities', getLocalitiesController);
+
 
 export default router;

@@ -1,152 +1,115 @@
-import { 
-  addState, 
-  addCity, 
-  addLocality, 
-  addSublocality, 
-  addPincode, 
-  getStates, 
-  getCitiesByState, 
-  getLocalitiesByCity, 
-  getSublocalitiesByLocality, 
-  getPincodesByLocality 
-} from '../models/locationModel.js';
+import {addState, addCity, getStates, 
+  addLocality, getCities, addSubLocality, 
+  addPincode, getLocalities} from '../models/locationModel.js';
 
-// Controller to add a location (state, city, locality, sublocality, pincode)
-export const addLocation = async (req, res) => {
-  const { type, name, parentId } = req.body;
+// Controller to add a state
+export const addStateController = async (req, res) => {
+  const { stateName } = req.body;
 
-  if (!name) {
-    return res.status(400).json({ message: 'Name is required' });
+  if (!stateName) {
+    return res.status(400).json({ error: 'State name is required' });
   }
 
   try {
-    let result;
-
-    // Insert into the appropriate table based on location type
-    switch (type) {
-      case 'state':
-        result = await addState(name);
-        break;
-
-      case 'city':
-        if (!parentId) {
-          return res.status(400).json({ message: 'State ID is required for city' });
-        }
-        result = await addCity(name, parentId);
-        break;
-
-      case 'locality':
-        if (!parentId) {
-          return res.status(400).json({ message: 'City ID is required for locality' });
-        }
-        result = await addLocality(name, parentId);
-        break;
-
-      case 'sublocality':
-        if (!parentId) {
-          return res.status(400).json({ message: 'Locality ID is required for sublocality' });
-        }
-        result = await addSublocality(name, parentId);
-        break;
-
-      case 'pincode':
-        if (!parentId) {
-          return res.status(400).json({ message: 'Locality ID is required for pincode' });
-        }
-        result = await addPincode(name, parentId);
-        break;
-
-      default:
-        return res.status(400).json({ message: 'Invalid location type' });
-    }
-
-    // Return the response with the message and ID dynamically
-    return res.status(200).json({
-      message: result.message,
-      id: result[`${type}Id`] // Dynamically get the ID based on the location type
-    });
-
+    const response = await addState(stateName);
+    res.status(201).json(response);
   } catch (err) {
-    console.error('Error adding location:', err.message);
-    return res.status(500).json({ message: 'An error occurred while adding the location', error: err.message });
+    res.status(500).json({ error: 'Failed to add state' });
   }
 };
 
-// Fetch All States
+// Controller to add a city
+export const addCityController = async (req, res) => {
+  const { cityName, stateId } = req.body;
+
+  if (!cityName || !stateId) {
+    return res.status(400).json({ error: 'City name and state ID are required' });
+  }
+
+  try {
+    const response = await addCity(cityName, stateId);
+    res.status(201).json(response);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add city' });
+  }
+};
+
+// Controller to add a locality
+export const addLocalityController = async (req, res) => {
+  const { localityName, cityId } = req.body;
+
+  if (!localityName || !cityId) {
+    return res.status(400).json({ error: 'Locality name and city ID are required' });
+  }
+
+  try {
+    const response = await addLocality(localityName, cityId);
+    res.status(201).json(response);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add locality' });
+  }
+};
+
+// Controller to add a sublocality
+export const addSubLocalityController = async (req, res) => {
+  const { subLocalityName, localityId } = req.body;
+
+  // Validate that both subLocalityName and localityId are provided
+  if (!subLocalityName || !localityId) {
+    return res.status(400).json({ error: 'Both sublocality name and locality ID are required' });
+  }
+
+  try {
+    const response = await addSubLocality(subLocalityName, localityId);  // Call the model function to add sublocality
+    res.status(201).json(response);  // Send a success response back
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add sublocality' });  // Handle any errors
+  }
+};
+
+// Controller to add a pincode
+export const addPincodeController = async (req, res) => {
+  const { pincode, localityId } = req.body;
+
+  // Validate that both pincode and localityId are provided
+  if (!pincode || !localityId) {
+    return res.status(400).json({ error: 'Both pincode and locality ID are required' });
+  }
+
+  try {
+    const response = await addPincode(pincode, localityId);  // Call the model function to add pincode
+    res.status(201).json(response);  // Send a success response back
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add pincode' });  // Handle any errors
+  }
+};
+
+// Controller to fetch all states
 export const getStatesController = async (req, res) => {
   try {
-    const states = await getStates();  // Fetch all states
-    return res.status(200).json(states);  // Return states data
+    const states = await getStates();
+    res.status(200).json(states);
   } catch (err) {
-    console.error('Error fetching states:', err.message);
-    return res.status(500).json({ message: 'Failed to fetch states', error: err.message });
+    res.status(500).json({ error: 'Failed to fetch states' });
   }
 };
 
-// Fetch Cities by State
-export const getCitiesByStateController = async (req, res) => {
-  const { stateId } = req.query;
-
-  if (!stateId) {
-    return res.status(400).json({ message: 'State ID is required to fetch cities' });
-  }
-
+// Controller to get all cities
+export const getCitiesController = async (req, res) => {
   try {
-    const cities = await getCitiesByState(stateId);  // Fetch cities by stateId
-    return res.status(200).json(cities);  // Return cities data
+    const cities = await getCities();
+    res.status(200).json(cities);  // Sending the list of cities as JSON response
   } catch (err) {
-    console.error('Error fetching cities:', err.message);
-    return res.status(500).json({ message: 'Failed to fetch cities', error: err.message });
+    res.status(500).json({ error: 'Failed to fetch cities' });
   }
 };
 
-// Fetch Localities by City
-export const getLocalitiesByCityController = async (req, res) => {
-  const { cityId } = req.query;
-
-  if (!cityId) {
-    return res.status(400).json({ message: 'City ID is required to fetch localities' });
-  }
-
+// Controller to get all localities
+export const getLocalitiesController = async (req, res) => {
   try {
-    const localities = await getLocalitiesByCity(cityId);  // Fetch localities by cityId
-    return res.status(200).json(localities);  // Return localities data
+    const localities = await getLocalities();  // Call the model function to fetch localities
+    res.status(200).json(localities);  // Send the list of localities as response
   } catch (err) {
-    console.error('Error fetching localities:', err.message);
-    return res.status(500).json({ message: 'Failed to fetch localities', error: err.message });
-  }
-};
-
-// Fetch Sublocalities by Locality
-export const getSublocalitiesByLocalityController = async (req, res) => {
-  const { localityId } = req.query;
-
-  if (!localityId) {
-    return res.status(400).json({ message: 'Locality ID is required to fetch sublocalities' });
-  }
-
-  try {
-    const sublocalities = await getSublocalitiesByLocality(localityId);  // Fetch sublocalities by localityId
-    return res.status(200).json(sublocalities);  // Return sublocalities data
-  } catch (err) {
-    console.error('Error fetching sublocalities:', err.message);
-    return res.status(500).json({ message: 'Failed to fetch sublocalities', error: err.message });
-  }
-};
-
-// Fetch Pincodes by Locality
-export const getPincodesByLocalityController = async (req, res) => {
-  const { localityId } = req.query;
-
-  if (!localityId) {
-    return res.status(400).json({ message: 'Locality ID is required to fetch pincodes' });
-  }
-
-  try {
-    const pincodes = await getPincodesByLocality(localityId);  // Fetch pincodes by localityId
-    return res.status(200).json(pincodes);  // Return pincodes data
-  } catch (err) {
-    console.error('Error fetching pincodes:', err.message);
-    return res.status(500).json({ message: 'Failed to fetch pincodes', error: err.message });
+    res.status(500).json({ error: 'Failed to fetch localities' });  // Handle any errors
   }
 };
