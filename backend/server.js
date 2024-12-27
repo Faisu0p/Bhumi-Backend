@@ -3,11 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { connectToDatabase } from "./config/dbconfig.js";
 import projectRoutes from "./routes/projectRoutes.js";
-// import builderRoutes from "./routes/builderRoutes.js";
-// import builderRoutes from './builderRoutes.js';
 import builderRoutes from './routes/builderRoutes.js';
-
-// import mediaRoutes from "./routes/mediaRoutes.js";
+import locationRoutes from './routes/locationRoutes.js';
 
 dotenv.config();
 
@@ -24,6 +21,7 @@ app.use(express.json());
 // Routes
 app.use("/api/projects", projectRoutes);
 app.use("/api/builders", builderRoutes);
+app.use("/api/locations", locationRoutes);
 
 // Start server
 app.listen(PORT, () => {
