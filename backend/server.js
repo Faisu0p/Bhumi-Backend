@@ -5,6 +5,7 @@ import { connectToDatabase } from "./config/dbconfig.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import builderRoutes from './routes/builderRoutes.js';
 import locationRoutes from './routes/locationRoutes.js';
+import projectlocationRoutes from './routes/projectLocationRoutes.js';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use("/api/projects", projectRoutes);
 app.use("/api/builders", builderRoutes);
 app.use("/api/locations", locationRoutes);
+app.use("/api/project-locations", projectlocationRoutes);
 
 // Start server
 app.listen(PORT, () => {
