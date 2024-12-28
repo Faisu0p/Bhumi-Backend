@@ -11,6 +11,8 @@ export const createBuilder = async (builderData) => {
     builderLogo,
     yearsInRealEstate,
     shortDescription,
+    state,
+    builderLogoRectangle
   } = builderData;
 
   try {
@@ -23,6 +25,8 @@ export const createBuilder = async (builderData) => {
       .input('builderLogo', sql.NVarChar, builderLogo)
       .input('yearsOfExperience', sql.Int, yearsInRealEstate)
       .input('shortDescription', sql.NVarChar, shortDescription)
+      .input('state', sql.NVarChar, state)
+      .input('builderLogoRectangle', sql.NVarChar, builderLogoRectangle)
       .query(`
         INSERT INTO Builders (
           City,
@@ -31,7 +35,9 @@ export const createBuilder = async (builderData) => {
           Builder_logo,
           Years_of_experience,
           Short_Description,
-          Builder_isVerified
+          Builder_isVerified,
+          State,
+          Builder_logo_rectangle
         ) VALUES (
           @city,
           @fullName,
@@ -39,7 +45,9 @@ export const createBuilder = async (builderData) => {
           @builderLogo,
           @yearsOfExperience,
           @shortDescription,
-          0
+          0,
+          @state,
+          @builderLogoRectangle
         )
       `);
 

@@ -12,6 +12,8 @@ export const addBuilder = async (req, res) => {
       builderLogo,
       yearsInRealEstate,
       shortDescription,
+      state,
+      builderLogoRectangle
     } = builderData;
 
     if (
@@ -20,10 +22,12 @@ export const addBuilder = async (req, res) => {
       !builderShortName ||
       !builderLogo ||
       !yearsInRealEstate ||
-      !shortDescription
+      !shortDescription ||
+      !state ||
+      !builderLogoRectangle
     ) {
       return res.status(400).json({
-        message: 'All fields are required: city, builderCompleteName, builderShortName, builderLogo, yearsInRealEstate, and shortDescription.',
+        message: 'All fields are required: city, builderCompleteName, builderShortName, builderLogo, yearsInRealEstate, shortDescription, state, builderLogoRectangle',
       });
     }
 
@@ -34,6 +38,8 @@ export const addBuilder = async (req, res) => {
       builderLogo,
       yearsInRealEstate,
       shortDescription,
+      state,
+      builderLogoRectangle
     });
 
     if (result > 0) {
