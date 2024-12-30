@@ -37,8 +37,7 @@ export const createBuilder = async (builderData) => {
           Short_Description,
           Builder_isVerified,
           State,
-          Builder_logo_rectangle,
-          approvalStatus
+          Builder_logo_rectangle
         ) VALUES (
           @city,
           @fullName,
@@ -49,7 +48,6 @@ export const createBuilder = async (builderData) => {
           0,
           @state,
           @builderLogoRectangle
-          'Pending'
         )
       `);
 
