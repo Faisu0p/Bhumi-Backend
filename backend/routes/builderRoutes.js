@@ -1,7 +1,8 @@
 import express from 'express';
 import { addBuilder, fetchBuilders, 
     verifyBuilder, getAllBuildersDetails, 
-    fetchVerifiedBuilders, getBuilderDetails } 
+    fetchVerifiedBuilders, getBuilderDetails,
+    rejectBuilder } 
 from '../controllers/builderController.js';
 
 const router = express.Router();
@@ -15,6 +16,9 @@ router.get('/names_id', fetchBuilders);
 
 // Route to verify a builder by their ID
 router.post('/verifyByid', verifyBuilder);
+
+// Route to reject a builder by their ID
+router.post('/rejectByid', rejectBuilder);
 
 // Route to fetch all builders' information
 router.get('/details', getAllBuildersDetails);

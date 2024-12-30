@@ -1,6 +1,7 @@
 import { createBuilder, getBuilders, 
   verifyBuilderById, getAllBuildersInfo, 
-  getVerifiedBuilders, getBuilderById } from '../models/builderModel.js';
+  getVerifiedBuilders, getBuilderById,
+  rejectBuilderById } from '../models/builderModel.js';
 
 //Add New Builder or Create New Builder
 export const addBuilder = async (req, res) => {
@@ -100,6 +101,29 @@ export const verifyBuilder = async (req, res) => {
     return res.status(500).json({ message: 'An error occurred while verifying the builder by ID', error: err.message });
   }
 };
+
+// Controller to reject a builder by their ID
+export const rejectBuilder = async (req, res) => {
+  const { builderId } = req.body;
+
+  if (!builderId) {
+    return res.status(400).json({ message: 'Builder ID is required' });
+  }
+
+  try {
+    const isRejected = await rejectBuilderById(builderId); // Call the reject function
+
+    if (isRejected) {
+      return res.status(200).json({ message: 'Builder rejected successfully.' });
+    } else {
+      return res.status(404).json({ message: 'Builder not found or already rejected.' });
+    }
+  } catch (err) {
+    console.error('Error rejecting builder by ID:', err.message);
+    return res.status(500).json({ message: 'An error occurred while rejecting the builder by ID', error: err.message });
+  }
+};
+
 
 
 // Controller to fetch all builders' information

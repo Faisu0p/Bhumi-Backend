@@ -37,7 +37,8 @@ export const createBuilder = async (builderData) => {
           Short_Description,
           Builder_isVerified,
           State,
-          Builder_logo_rectangle
+          Builder_logo_rectangle,
+          approvalStatus
         ) VALUES (
           @city,
           @fullName,
@@ -48,6 +49,7 @@ export const createBuilder = async (builderData) => {
           0,
           @state,
           @builderLogoRectangle
+          'Pending'
         )
       `);
 
@@ -85,7 +87,7 @@ export const verifyBuilderById = async (builderId) => {
       .input('builderId', sql.Int, builderId)
       .query(`
         UPDATE Builders
-        SET Builder_isVerified = 1
+        SET Builder_isVerified = 1, approvalStatus = 'Approved'
         WHERE Builder_id = @builderId;
       `);
 
@@ -95,6 +97,27 @@ export const verifyBuilderById = async (builderId) => {
     throw new Error('Error updating builder verification status');
   }
 };
+
+// Reject Builder by ID
+export const rejectBuilderById = async (builderId) => {
+  try {
+    const pool = await sql.connect(config); 
+
+    const result = await pool.request()
+      .input('builderId', sql.Int, builderId)
+      .query(`
+        UPDATE Builders
+        SET Builder_isVerified = 0, approvalStatus = 'Rejected'
+        WHERE Builder_id = @builderId;
+      `);
+
+    return result.rowsAffected[0] > 0;
+  } catch (err) {
+    console.error('Error rejecting builder by ID:', err.message);
+    throw new Error('Error updating builder rejection status');
+  }
+};
+
 
 
 // Get All Builders Information
@@ -155,7 +178,8 @@ export const getBuilderById = async (builderId) => {
           Short_Description,
           Builder_isVerified,
           State,
-          Builder_logo_rectangle
+          Builder_logo_rectangle,
+          approvalStatus
         FROM Builders
         WHERE Builder_id = @builderId
       `);
