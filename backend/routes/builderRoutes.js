@@ -1,5 +1,8 @@
 import express from 'express';
-import { addBuilder, fetchBuilders, verifyBuilder, getAllBuildersDetails, fetchVerifiedBuilders } from '../controllers/builderController.js';
+import { addBuilder, fetchBuilders, 
+    verifyBuilder, getAllBuildersDetails, 
+    fetchVerifiedBuilders, getBuilderDetails } 
+from '../controllers/builderController.js';
 
 const router = express.Router();
 
@@ -18,6 +21,10 @@ router.get('/details', getAllBuildersDetails);
 
 // Route to fetch only verified builders
 router.get('/verified-builders', fetchVerifiedBuilders);
+
+// Route to fetch builder details by builderId
+router.get('/builder/:id', getBuilderDetails);
+
 
 
 

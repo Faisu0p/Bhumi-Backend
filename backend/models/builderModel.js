@@ -137,4 +137,40 @@ export const getVerifiedBuilders = async () => {
 
 
 
+// Get Builder Details by Builder_id (for Manage Page)
+export const getBuilderById = async (builderId) => {
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool
+      .request()
+      .input('builderId', sql.Int, builderId)  // Using the input parameter for Builder_id
+      .query(`
+        SELECT 
+          Builder_id,
+          City,
+          FullName,
+          NickName,
+          Builder_logo,
+          Years_of_experience,
+          Short_Description,
+          Builder_isVerified,
+          State,
+          Builder_logo_rectangle
+        FROM Builders
+        WHERE Builder_id = @builderId
+      `);
+
+    // If builder is found, return the result
+    if (result.recordset.length > 0) {
+      return result.recordset[0]; // Return the first builder's details
+    } else {
+      throw new Error('Builder not found');
+    }
+  } catch (err) {
+    console.error('Error fetching builder details:', err.message);
+    throw err;
+  }
+};
+
+
 

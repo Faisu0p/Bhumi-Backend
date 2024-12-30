@@ -1,4 +1,6 @@
-import { createBuilder, getBuilders, verifyBuilderById, getAllBuildersInfo, getVerifiedBuilders } from '../models/builderModel.js';
+import { createBuilder, getBuilders, 
+  verifyBuilderById, getAllBuildersInfo, 
+  getVerifiedBuilders, getBuilderById } from '../models/builderModel.js';
 
 //Add New Builder or Create New Builder
 export const addBuilder = async (req, res) => {
@@ -147,4 +149,22 @@ export const fetchVerifiedBuilders = async (req, res) => {
   }
 };
 
+
+
+// Controller to handle fetching builder details by ID (for Manage page)
+export const getBuilderDetails = async (req, res) => {
+  const builderId = parseInt(req.params.id); // Get Builder_id from the URL parameter
+
+  try {
+    // Call the model function to get builder details
+    const builderDetails = await getBuilderById(builderId);
+
+    // Send the builder details as the response
+    res.status(200).json(builderDetails);
+  } catch (error) {
+    // Handle error if any occurs during fetching the builder details
+    console.error('Error in getBuilderDetails controller:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
 
