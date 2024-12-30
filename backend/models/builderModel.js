@@ -124,7 +124,9 @@ export const getAllBuildersInfo = async () => {
     const pool = await sql.connect(config); 
 
     const result = await pool.request().query(`
-      SELECT Builder_id, City, FullName, NickName, Builder_logo, Years_of_experience, Short_Description, Builder_isVerified
+      SELECT Builder_id, City, FullName, NickName, 
+      Builder_logo, Years_of_experience, Short_Description, 
+      Builder_isVerified, State,Builder_logo_rectangle,approvalStatus 
       FROM Builders;
     `);
 
@@ -155,7 +157,6 @@ export const getVerifiedBuilders = async () => {
     throw new Error('Error fetching verified builders');
   }
 };
-
 
 
 // Get Builder Details by Builder_id (for Manage Page)
