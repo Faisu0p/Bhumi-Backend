@@ -265,14 +265,14 @@ export const addProjectWithPhasesAndUnits = async (projectData) => {
             .input('unitSize', sql.Decimal, detail.unitSize)  
             .input('unitFurnishedStatus', sql.NVarChar(50), detail.unitFurnishedStatus) 
             .input('spaceType', sql.VarChar(255), detail.spaceType)
-            .input('uniLength', sql.Decimal, detail.uniLength)
+            .input('unitLength', sql.Decimal, detail.unitLength)
             .input('unitBredth', sql.Decimal, detail.unitBredth)
             
             .query(`
               INSERT INTO Units_Details (Unit_id, Unit_Size, 
               Unit_Furnished_Status, Space_Type, Unit_Length, Unit_Bredth)
               VALUES (@Unit_id, @unitSize, 
-              @unitFurnishedStatus, @spaceType, @uniLength, @unitBredth);
+              @unitFurnishedStatus, @spaceType, @unitLength, @unitBredth);
             `);
             
         }
