@@ -256,17 +256,23 @@ export const addProjectWithPhasesAndUnits = async (projectData) => {
         const unitId = unitResult.recordset[0].Unit_id;
 
         // Insert into Unit_Details table for this unit
-        for (const detail of unit.unitDetails) {
+        for (const detail of unit.unitDetails
+          
+        ) {
           await transaction.request()
 
             .input('Unit_id', sql.Int, unitId)
             .input('unitSize', sql.Decimal, detail.unitSize)  
             .input('unitFurnishedStatus', sql.NVarChar(50), detail.unitFurnishedStatus) 
             .input('spaceType', sql.VarChar(255), detail.spaceType)
+            .input('uniLength', sql.Decimal, detail.uniLength)
+            .input('unitBredth', sql.Decimal, detail.unitBredth)
             
             .query(`
-              INSERT INTO Units_Details (Unit_id, Unit_Size, Unit_Furnished_Status, Space_Type)
-              VALUES (@Unit_id, @unitSize, @unitFurnishedStatus, @spaceType);
+              INSERT INTO Units_Details (Unit_id, Unit_Size, 
+              Unit_Furnished_Status, Space_Type, Unit_Length, Unit_Bredth)
+              VALUES (@Unit_id, @unitSize, 
+              @unitFurnishedStatus, @spaceType, @uniLength, @unitBredth);
             `);
             
         }
