@@ -65,7 +65,7 @@ export const getBuilders = async () => {
 
     const result = await pool.request().query(`
       SELECT Builder_id, FullName 
-      FROM Builders;
+      FROM Builders where approvalStatus = 'Pending';
     `);
 
     return result.recordset;
