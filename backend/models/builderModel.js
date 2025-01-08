@@ -182,24 +182,43 @@ export const getBuilderById = async (builderId) => {
       .input('builderId', sql.Int, builderId)  // Using the input parameter for Builder_id
       .query(`
         SELECT 
-          Builder_id,
-          City,
-          FullName,
-          NickName,
-          Builder_logo,
-          Years_of_experience,
-          Short_Description,
-          Builder_isVerified,
-          State,
-          Builder_logo_rectangle,
-          approvalStatus
-        FROM Builders
-        WHERE Builder_id = @builderId
+          b.Builder_id,
+          bc.State_Name,
+          bc.City_Name,
+          b.FullName,
+          b.NickName,
+          b.Builder_logo,
+          b.Years_of_experience,
+          b.Short_Description,
+          b.Builder_isVerified,
+          b.Builder_logo_rectangle,
+          b.approvalStatus
+        FROM Builders b
+        JOIN Builder_StateCity bc ON b.Builder_id = bc.Builder_id
+        WHERE b.Builder_id = @builderId
       `);
 
-    // If builder is found, return the result
+    // If builder is found, process the result to group state and city names
     if (result.recordset.length > 0) {
-      return result.recordset[0]; // Return the first builder's details
+      const builder = result.recordset[0]; // Start with the first record
+      let stateNames = [];
+      let cityNames = [];
+
+      // Iterate over the records to group the states and cities
+      result.recordset.forEach((record) => {
+        if (!stateNames.includes(record.State_Name)) {
+          stateNames.push(record.State_Name);
+        }
+        if (!cityNames.includes(record.City_Name)) {
+          cityNames.push(record.City_Name);
+        }
+      });
+
+      // Update builder details with the comma-separated values
+      builder.State_Name = stateNames.join(', ');
+      builder.City_Name = cityNames.join(', ');
+
+      return builder; // Return the formatted builder details
     } else {
       throw new Error('Builder not found');
     }
@@ -208,6 +227,5 @@ export const getBuilderById = async (builderId) => {
     throw err;
   }
 };
-
 
 
