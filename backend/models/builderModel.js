@@ -138,18 +138,55 @@ export const getAllBuildersInfo = async () => {
     const pool = await sql.connect(config); 
 
     const result = await pool.request().query(`
-      SELECT Builder_id, City, FullName, NickName, 
-      Builder_logo, Years_of_experience, Short_Description, 
-      Builder_isVerified, State,Builder_logo_rectangle,approvalStatus 
-      FROM Builders;
+SELECT 
+  b.Builder_id, 
+  bc.State_Name, 
+  bc.City_Name, 
+  b.FullName, 
+  b.NickName, 
+  b.Builder_logo, 
+  b.Years_of_experience, 
+  b.Short_Description, 
+  b.Builder_isVerified, 
+  b.Builder_logo_rectangle, 
+  b.approvalStatus
+FROM Builders b
+LEFT JOIN Builder_StateCity bc ON b.Builder_id = bc.Builder_id;
+
     `);
 
-    return result.recordset;
+    // Process the result to group state and city names into comma-separated lists
+    const builders = [];
+    result.recordset.forEach((record) => {
+      let builder = builders.find(b => b.Builder_id === record.Builder_id);
+      if (!builder) {
+        builder = { ...record };
+        builder.State_Name = [record.State_Name];
+        builder.City_Name = [record.City_Name];
+        builders.push(builder);
+      } else {
+        if (!builder.State_Name.includes(record.State_Name)) {
+          builder.State_Name.push(record.State_Name);
+        }
+        if (!builder.City_Name.includes(record.City_Name)) {
+          builder.City_Name.push(record.City_Name);
+        }
+      }
+    });
+
+    // Join the state and city arrays into comma-separated strings
+    builders.forEach((builder) => {
+      builder.State_Name = builder.State_Name.join(', ');
+      builder.City_Name = builder.City_Name.join(', ');
+    });
+
+    return builders;
   } catch (err) {
     console.error('Error fetching all builders information:', err.message);
     throw new Error('Error fetching all builders information');
   }
 };
+
 
 
 
