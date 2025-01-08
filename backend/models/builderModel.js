@@ -2,54 +2,65 @@ import sql from 'mssql';
 import config from '../config/dbconfig.js'; 
 
 
-//Create New Builder
+// Create New Builder with multiple State and City data
 export const createBuilder = async (builderData) => {
   const {
-    city,
+    citiesAndStates, // Array of { state, city } pairs
     builderCompleteName,
     builderShortName,
     builderLogo,
     yearsInRealEstate,
     shortDescription,
-    state,
     builderLogoRectangle
   } = builderData;
 
   try {
     const pool = await sql.connect(config);
+
+    // Step 1: Insert into Builders table
     const result = await pool
       .request()
-      .input('city', sql.NVarChar, city)
       .input('fullName', sql.NVarChar, builderCompleteName)
       .input('nickName', sql.NVarChar, builderShortName)
       .input('builderLogo', sql.NVarChar, builderLogo)
       .input('yearsOfExperience', sql.Int, yearsInRealEstate)
       .input('shortDescription', sql.NVarChar, shortDescription)
-      .input('state', sql.NVarChar, state)
       .input('builderLogoRectangle', sql.NVarChar, builderLogoRectangle)
       .query(`
         INSERT INTO Builders (
-          City,
           FullName,
           NickName,
           Builder_logo,
           Years_of_experience,
           Short_Description,
           Builder_isVerified,
-          State,
           Builder_logo_rectangle
         ) VALUES (
-          @city,
           @fullName,
           @nickName,
           @builderLogo,
           @yearsOfExperience,
           @shortDescription,
           0,
-          @state,
           @builderLogoRectangle
-        )
+        );
+        SELECT SCOPE_IDENTITY() AS NewBuilderID;  -- Get the Builder_ID of the newly inserted builder
       `);
+
+    const builderId = result.recordset[0].NewBuilderID; // Retrieve the Builder_ID
+
+    // Step 2: Insert multiple State and City data into Builder_StateCity table
+    for (const { state, city } of citiesAndStates) {
+      const request = pool.request();  // Create a new request for each insert
+      await request
+        .input('builderIdForStateCity', sql.Int, builderId)  // Use a unique parameter name for each insert
+        .input('state', sql.NVarChar, state)
+        .input('city', sql.NVarChar, city)
+        .query(`
+          INSERT INTO Builder_StateCity (Builder_id, State_Name, City_Name)
+          VALUES (@builderIdForStateCity, @state, @city);
+        `);
+    }
 
     return result.rowsAffected[0];
   } catch (err) {
@@ -57,6 +68,9 @@ export const createBuilder = async (builderData) => {
     throw err;
   }
 };
+
+
+
 
 //Get Builder id and Names
 export const getBuilders = async () => {

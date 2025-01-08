@@ -3,45 +3,43 @@ import { createBuilder, getBuilders,
   getVerifiedBuilders, getBuilderById,
   rejectBuilderById } from '../models/builderModel.js';
 
-//Add New Builder or Create New Builder
+// Add New Builder or Create New Builder
 export const addBuilder = async (req, res) => {
   const builderData = req.body;
 
   try {
     const {
-      city,
+      citiesAndStates, // Array of { state, city } pairs
       builderCompleteName,
       builderShortName,
       builderLogo,
       yearsInRealEstate,
       shortDescription,
-      state,
       builderLogoRectangle
     } = builderData;
 
     if (
-      !city ||
+      !citiesAndStates || !Array.isArray(citiesAndStates) || citiesAndStates.length === 0 ||
       !builderCompleteName ||
       !builderShortName ||
       !builderLogo ||
       !yearsInRealEstate ||
       !shortDescription ||
-      !state ||
       !builderLogoRectangle
     ) {
       return res.status(400).json({
-        message: 'All fields are required: city, builderCompleteName, builderShortName, builderLogo, yearsInRealEstate, shortDescription, state, builderLogoRectangle',
+        message: 'All fields are required: citiesAndStates (array of state-city), builderCompleteName, builderShortName, builderLogo, yearsInRealEstate, shortDescription, builderLogoRectangle',
       });
     }
 
+    // Call the function to create the builder and insert related state-city data
     const result = await createBuilder({
-      city,
+      citiesAndStates, 
       builderCompleteName,
       builderShortName,
       builderLogo,
       yearsInRealEstate,
       shortDescription,
-      state,
       builderLogoRectangle
     });
 
@@ -55,6 +53,7 @@ export const addBuilder = async (req, res) => {
     res.status(500).json({ message: 'Error adding builder', error: error.message });
   }
 };
+
 
 
 //Get Builder id and Names
