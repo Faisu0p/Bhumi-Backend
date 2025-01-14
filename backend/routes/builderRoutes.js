@@ -2,7 +2,7 @@ import express from 'express';
 import { addBuilder, fetchBuilders, 
     verifyBuilder, getAllBuildersDetails, 
     fetchVerifiedBuilders, getBuilderDetails,
-    rejectBuilder } 
+    rejectBuilder, editBuilder } 
 from '../controllers/builderController.js';
 
 const router = express.Router();
@@ -29,6 +29,8 @@ router.get('/verified-builders', fetchVerifiedBuilders);
 // Route to fetch builder details by builderId
 router.get('/builder/:id', getBuilderDetails);
 
+// Route to edit a builder by their ID
+router.put('/builder/:id', editBuilder);
 
 
 

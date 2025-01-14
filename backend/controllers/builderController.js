@@ -1,7 +1,7 @@
 import { createBuilder, getBuilders, 
   verifyBuilderById, getAllBuildersInfo, 
   getVerifiedBuilders, getBuilderById,
-  rejectBuilderById } from '../models/builderModel.js';
+  rejectBuilderById, updateBuilder } from '../models/builderModel.js';
 
 // Add New Builder or Create New Builder
 export const addBuilder = async (req, res) => {
@@ -53,6 +53,63 @@ export const addBuilder = async (req, res) => {
     res.status(500).json({ message: 'Error adding builder', error: error.message });
   }
 };
+
+
+// Edit Existing Builder
+export const editBuilder = async (req, res) => {
+  const builderId = parseInt(req.params.id, 10); // Get builder ID from request parameters
+  const builderData = req.body;
+
+  try {
+    const {
+      citiesAndStates, // Array of { state, city } pairs
+      builderCompleteName,
+      builderShortName,
+      builderLogo,
+      yearsInRealEstate,
+      shortDescription,
+      builderLogoRectangle
+    } = builderData;
+
+    // Validate required fields
+    if (
+      !builderId || isNaN(builderId) ||
+      !citiesAndStates || !Array.isArray(citiesAndStates) || citiesAndStates.length === 0 ||
+      !builderCompleteName ||
+      !builderShortName ||
+      !builderLogo ||
+      !yearsInRealEstate ||
+      !shortDescription ||
+      !builderLogoRectangle
+    ) {
+      return res.status(400).json({
+        message: 'All fields are required: builderId, citiesAndStates (array of state-city), builderCompleteName, builderShortName, builderLogo, yearsInRealEstate, shortDescription, builderLogoRectangle',
+      });
+    }
+
+    // Call the function to edit the builder and update related state-city data
+    const result = await updateBuilder(builderId, {
+      citiesAndStates,
+      builderCompleteName,
+      builderShortName,
+      builderLogo,
+      yearsInRealEstate,
+      shortDescription,
+      builderLogoRectangle
+    });
+
+    if (result.success) {
+      res.status(200).json({ message: 'Builder updated successfully' });
+    } else {
+      res.status(400).json({ message: 'Failed to update builder' });
+    }
+  } catch (error) {
+    console.error('Error in editBuilder controller:', error.message);
+    res.status(500).json({ message: 'Error updating builder', error: error.message });
+  }
+};
+
+
 
 
 

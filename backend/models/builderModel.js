@@ -70,6 +70,74 @@ export const createBuilder = async (builderData) => {
 };
 
 
+// Edit Existing Builder with multiple State and City data
+export const updateBuilder = async (builderId, builderData) => {
+  const {
+    citiesAndStates, // Array of { state, city } pairs
+    builderCompleteName,
+    builderShortName,
+    builderLogo,
+    yearsInRealEstate,
+    shortDescription,
+    builderLogoRectangle
+  } = builderData;
+
+  try {
+    const pool = await sql.connect(config);
+
+    // Step 1: Update the Builders table
+    await pool
+      .request()
+      .input('builderId', sql.Int, builderId)
+      .input('fullName', sql.NVarChar, builderCompleteName)
+      .input('nickName', sql.NVarChar, builderShortName)
+      .input('builderLogo', sql.NVarChar, builderLogo)
+      .input('yearsOfExperience', sql.Int, yearsInRealEstate)
+      .input('shortDescription', sql.NVarChar, shortDescription)
+      .input('builderLogoRectangle', sql.NVarChar, builderLogoRectangle)
+      .query(`
+        UPDATE Builders
+        SET
+          FullName = @fullName,
+          NickName = @nickName,
+          Builder_logo = @builderLogo,
+          Years_of_experience = @yearsOfExperience,
+          Short_Description = @shortDescription,
+          Builder_logo_rectangle = @builderLogoRectangle
+        WHERE Builder_ID = @builderId;
+      `);
+
+    // Step 2: Delete existing State and City data for the builder
+    await pool
+      .request()
+      .input('builderIdForDeletion', sql.Int, builderId)
+      .query(`
+        DELETE FROM Builder_StateCity
+        WHERE Builder_id = @builderIdForDeletion;
+      `);
+
+    // Step 3: Insert updated State and City data into Builder_StateCity table
+    for (const { state, city } of citiesAndStates) {
+      const request = pool.request(); // Create a new request for each insert
+      await request
+        .input('builderIdForStateCity', sql.Int, builderId) // Use a unique parameter name for each insert
+        .input('state', sql.NVarChar, state)
+        .input('city', sql.NVarChar, city)
+        .query(`
+          INSERT INTO Builder_StateCity (Builder_id, State_Name, City_Name)
+          VALUES (@builderIdForStateCity, @state, @city);
+        `);
+    }
+
+    return { success: true, message: 'Builder information updated successfully.' };
+  } catch (err) {
+    console.error('Error updating builder:', err.message);
+    throw err;
+  }
+};
+
+
+
 
 
 //Get Builder id and Names
@@ -109,6 +177,7 @@ export const verifyBuilderById = async (builderId) => {
     throw new Error('Error updating builder verification status');
   }
 };
+
 
 // Reject Builder by ID
 export const rejectBuilderById = async (builderId) => {
