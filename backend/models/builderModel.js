@@ -103,7 +103,9 @@ export const updateBuilder = async (builderId, builderData) => {
           Builder_logo = @builderLogo,
           Years_of_experience = @yearsOfExperience,
           Short_Description = @shortDescription,
-          Builder_logo_rectangle = @builderLogoRectangle
+          Builder_logo_rectangle = @builderLogoRectangle,
+          Builder_isVerified = 0,
+          approvalStatus = 'Pending'
         WHERE Builder_ID = @builderId;
       `);
 
